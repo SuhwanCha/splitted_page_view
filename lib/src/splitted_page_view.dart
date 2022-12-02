@@ -1,34 +1,25 @@
-library custom_carousel;
+part of splitted_page_view;
 
 // Copyright 2014 The Flutter Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:math' as math;
-
-import 'package:flutter/foundation.dart'
-    show precisionErrorTolerance, clampDouble;
-import 'package:flutter/gestures.dart' show DragStartBehavior;
-import 'package:flutter/rendering.dart';
-
-import 'package:flutter/widgets.dart';
-
-/// A controller for [CustomPageView].
+/// A controller for [SplittedPageView].
 ///
-/// A page controller lets you manipulate which page is visible in a [CustomPageView].
+/// A page controller lets you manipulate which page is visible in a [SplittedPageView].
 /// In addition to being able to control the pixel offset of the content inside
-/// the [CustomPageView], a [CustomPageController] also lets you control the offset in terms
+/// the [SplittedPageView], a [SplittedPageController] also lets you control the offset in terms
 /// of pages, which are increments of the viewport size.
 ///
 /// See also:
 ///
-///  * [CustomPageView], which is the widget this object controls.
+///  * [SplittedPageView], which is the widget this object controls.
 ///
 /// {@tool snippet}
 ///
-/// This widget introduces a [MaterialApp], [Scaffold] and [CustomPageView] with two pages
+/// This widget introduces a [MaterialApp], [Scaffold] and [SplittedPageView] with two pages
 /// using the default constructor. Both pages contain an [ElevatedButton] allowing you
-/// to animate the [CustomPageView] using a [CustomPageController].
+/// to animate the [SplittedPageView] using a [SplittedPageController].
 ///
 /// ```dart
 /// class MyCustomPageView extends StatefulWidget {
@@ -96,21 +87,21 @@ import 'package:flutter/widgets.dart';
 /// }
 /// ```
 /// {@end-tool}
-class CustomPageController extends ScrollController {
+class SplittedPageController extends ScrollController {
   /// Creates a page controller.
   ///
   /// The [initialPage], [keepPage], and [viewportFraction] arguments must not be null.
-  CustomPageController(
-      {this.initialPage = 0,
-      this.keepPage = true,
-      this.viewportFraction = 1.0,
-      this.viewportSizes})
-      : assert(viewportFraction > 0.0);
+  SplittedPageController({
+    this.initialPage = 0,
+    this.keepPage = true,
+    this.viewportFraction = 1.0,
+    this.viewportSizes,
+  }) : assert(viewportFraction > 0.0);
 
   /// List of width for each page.
   final List<double>? viewportSizes;
 
-  /// The page to show when first creating the [CustomPageView].
+  /// The page to show when first creating the [SplittedPageView].
   final int initialPage;
 
   /// Save the current [page] with [PageStorage] and restore it if
@@ -138,27 +129,27 @@ class CustomPageController extends ScrollController {
   /// {@endtemplate}
   final double viewportFraction;
 
-  /// The current page displayed in the controlled [CustomPageView].
+  /// The current page displayed in the controlled [SplittedPageView].
   ///
-  /// There are circumstances that this [CustomPageController] can't know the current
+  /// There are circumstances that this [SplittedPageController] can't know the current
   /// page. Reading [page] will throw an [AssertionError] in the following cases:
   ///
-  /// 1. No [CustomPageView] is currently using this [CustomPageController]. Once a
-  /// [CustomPageView] starts using this [CustomPageController], the new [page]
+  /// 1. No [SplittedPageView] is currently using this [SplittedPageController]. Once a
+  /// [SplittedPageView] starts using this [SplittedPageController], the new [page]
   /// position will be derived:
   ///
-  ///   * First, based on the attached [CustomPageView]'s [BuildContext] and the
+  ///   * First, based on the attached [SplittedPageView]'s [BuildContext] and the
   ///     position saved at that context's [PageStorage] if [keepPage] is true.
-  ///   * Second, from the [CustomPageController]'s [initialPage].
+  ///   * Second, from the [SplittedPageController]'s [initialPage].
   ///
-  /// 2. More than one [CustomPageView] using the same [CustomPageController].
+  /// 2. More than one [SplittedPageView] using the same [SplittedPageController].
   ///
-  /// The [hasClients] property can be used to check if a [CustomPageView] is attached
+  /// The [hasClients] property can be used to check if a [SplittedPageView] is attached
   /// prior to accessing [page].
   double? get page {
     assert(
       positions.isNotEmpty,
-      'CustomCustomPageController.page cannot be accessed before a CustomPageView is built with it.',
+      'SplittedPageController.page cannot be accessed before a SplittedPageView is built with it.',
     );
     assert(
       positions.length == 1,
@@ -169,7 +160,7 @@ class CustomPageController extends ScrollController {
     return position.page;
   }
 
-  /// Animates the controlled [CustomPageView] from the current page to the given page.
+  /// Animates the controlled [SplittedPageView] from the current page to the given page.
   ///
   /// The animation lasts for the given duration and follows the given curve.
   /// The returned [Future] resolves when the animation completes.
@@ -192,7 +183,7 @@ class CustomPageController extends ScrollController {
     );
   }
 
-  /// Changes which page is displayed in the controlled [CustomPageView].
+  /// Changes which page is displayed in the controlled [SplittedPageView].
   ///
   /// Jumps the page position from its current value to the given value,
   /// without animation, and without checking if the new value is in range.
@@ -206,7 +197,7 @@ class CustomPageController extends ScrollController {
     position.jumpTo(position.getPixelsFromPage(page.toDouble()));
   }
 
-  /// Animates the controlled [CustomPageView] to the next page.
+  /// Animates the controlled [SplittedPageView] to the next page.
   ///
   /// The animation lasts for the given duration and follows the given curve.
   /// The returned [Future] resolves when the animation completes.
@@ -216,7 +207,7 @@ class CustomPageController extends ScrollController {
     return animateToPage(page!.round() + 1, duration: duration, curve: curve);
   }
 
-  /// Animates the controlled [CustomPageView] to the previous page.
+  /// Animates the controlled [SplittedPageView] to the previous page.
   ///
   /// The animation lasts for the given duration and follows the given curve.
   /// The returned [Future] resolves when the animation completes.
@@ -249,12 +240,12 @@ class CustomPageController extends ScrollController {
   }
 }
 
-/// Metrics for a [CustomPageView].
+/// Metrics for a [SplittedPageView].
 ///
 /// The metrics are available on [ScrollNotification]s generated from
-/// [CustomPageView]s.
+/// [SplittedPageView]s.
 class PageMetrics extends FixedScrollMetrics {
-  /// Creates an immutable snapshot of values associated with a [CustomPageView].
+  /// Creates an immutable snapshot of values associated with a [SplittedPageView].
   PageMetrics({
     required super.minScrollExtent,
     required super.maxScrollExtent,
@@ -289,32 +280,35 @@ class PageMetrics extends FixedScrollMetrics {
     );
   }
 
-  final List<double> viewportSizes;
+  final List<double>? viewportSizes;
 
   int fractionIndex = 0;
 
-  /// The current page displayed in the [CustomPageView].
+  /// The current page displayed in the [SplittedPageView].
   double? get page {
     assert(viewportDimension > 0.0);
 
-    double sum = 0;
-    for (var i = 0; i < viewportSizes.length; i++) {
-      fractionIndex = i;
-      if (pixels < sum + viewportSizes[i]) {
-        break;
+    if (viewportSizes == null || viewportSizes!.isEmpty) {
+      return math.max(
+              0.0, clampDouble(pixels, minScrollExtent, maxScrollExtent)) /
+          math.max(1.0, viewportDimension * viewportFraction);
+    } else {
+      double sum = 0;
+      for (var i = 0; i < viewportSizes!.length; i++) {
+        fractionIndex = i;
+        if (pixels < sum + viewportSizes![i]) {
+          break;
+        }
+        sum += viewportSizes![i];
       }
-      sum += viewportSizes[i];
+      final double actual =
+          fractionIndex + (pixels - sum) / viewportSizes![fractionIndex];
+      final double round = actual.roundToDouble();
+      if ((actual - round).abs() < precisionErrorTolerance) {
+        return round;
+      }
+      return actual;
     }
-
-    final double actual =
-        fractionIndex + (pixels - sum) / viewportSizes[fractionIndex];
-    final double round = actual.roundToDouble();
-    if ((actual - round).abs() < precisionErrorTolerance) {
-      // print(round);
-      return round;
-    }
-    // print(actual);
-    return actual;
   }
 
   /// The fraction of the viewport that each page occupies.
@@ -331,7 +325,7 @@ class _PagePosition extends ScrollPositionWithSingleContext
     this.initialPage = 0,
     bool keepPage = true,
     double viewportFraction = 1.0,
-    required this.viewportSizes,
+    this.viewportSizes,
     super.oldPosition,
   })  : assert(viewportFraction > 0.0),
         _viewportFraction = viewportFraction,
@@ -349,7 +343,7 @@ class _PagePosition extends ScrollPositionWithSingleContext
   double? _cachedPage;
 
   @override
-  List<double> viewportSizes;
+  List<double>? viewportSizes;
 
   @override
   Future<void> ensureVisible(
@@ -397,50 +391,61 @@ class _PagePosition extends ScrollPositionWithSingleContext
   double get _initialPageOffset =>
       math.max(0, viewportDimension * (viewportFraction - 1) / 2);
 
-  int getFractionIndex(double pixel) {
-    double sum = 0;
-    for (var i = 0; i < viewportSizes.length; i++) {
-      if (pixel < sum + viewportSizes[i]) {
-        return i;
-      }
-      sum += viewportSizes[i];
-    }
-    return viewportSizes.length - 1;
-  }
+  // int getFractionIndex(double pixel) {
+  //   double sum = 0;
+  //   for (var i = 0; i < viewportSizes.length; i++) {
+  //     if (pixel < sum + viewportSizes[i]) {
+  //       return i;
+  //     }
+  //     sum += viewportSizes[i];
+  //   }
+  //   return viewportSizes.length - 1;
+  // }
 
   @override
   int fractionIndex = 0;
 
   double getPageFromPixels(double pixels, double viewportDimension) {
     assert(viewportDimension > 0.0);
-    final pixel = math.max(0.0, pixels - _initialPageOffset);
-
-    double sum = 0;
-    for (var i = 0; i < viewportSizes.length; i++) {
-      fractionIndex = i;
-      if (pixel < sum + viewportSizes[i]) {
-        break;
+    if (viewportSizes == null || viewportSizes!.isEmpty) {
+      final double actual = math.max(0.0, pixels - _initialPageOffset) /
+          (viewportDimension * viewportFraction);
+      final double round = actual.roundToDouble();
+      if ((actual - round).abs() < precisionErrorTolerance) {
+        return round;
       }
-      sum += viewportSizes[i];
-    }
+      return actual;
+    } else {
+      final pixel = math.max(0.0, pixels - _initialPageOffset);
+      double sum = 0;
+      for (var i = 0; i < viewportSizes!.length; i++) {
+        fractionIndex = i;
+        if (pixel < sum + viewportSizes![i]) {
+          break;
+        }
+        sum += viewportSizes![i];
+      }
 
-    final double actual =
-        fractionIndex + (pixel - sum) / viewportSizes[fractionIndex];
-    final double round = actual.roundToDouble();
-    if ((actual - round).abs() < precisionErrorTolerance) {
-      // print(round);
-      return round;
+      final double actual =
+          fractionIndex + (pixel - sum) / viewportSizes![fractionIndex];
+      final double round = actual.roundToDouble();
+      if ((actual - round).abs() < precisionErrorTolerance) {
+        return round;
+      }
+      return actual;
     }
-    // print(actual);
-    return actual;
   }
 
   double getPixelsFromPage(double page) {
-    double sum = 0;
-    for (var i = 0; i < page; i++) {
-      sum += viewportSizes[i];
+    if (viewportSizes == null || viewportSizes!.isEmpty) {
+      return page * viewportDimension * viewportFraction + _initialPageOffset;
+    } else {
+      double sum = 0;
+      for (var i = 0; i < page; i++) {
+        sum += viewportSizes![i];
+      }
+      return sum + _initialPageOffset;
     }
-    return sum + _initialPageOffset;
   }
 
   @override
@@ -592,7 +597,7 @@ class _ForceImplicitScrollPhysics extends ScrollPhysics {
   final bool allowImplicitScrolling;
 }
 
-/// Scroll physics used by a [CustomPageView].
+/// Scroll physics used by a [SplittedPageView].
 ///
 /// These physics cause the page view to snap to page boundaries.
 ///
@@ -600,9 +605,9 @@ class _ForceImplicitScrollPhysics extends ScrollPhysics {
 ///
 ///  * [ScrollPhysics], the base class which defines the API for scrolling
 ///    physics.
-///  * [CustomPageView.physics], which can override the physics used by a page view.
+///  * [SplittedPageView.physics], which can override the physics used by a page view.
 class PageScrollPhysics extends ScrollPhysics {
-  /// Creates physics for a [CustomPageView].
+  /// Creates physics for a [SplittedPageView].
   const PageScrollPhysics({super.parent});
 
   @override
@@ -668,28 +673,28 @@ class PageScrollPhysics extends ScrollPhysics {
 // to plumb in the factory for _PagePosition, but it will end up accumulating
 // a large list of scroll positions. As long as you don't try to actually
 // control the scroll positions, everything should be fine.
-final CustomPageController _defaultCustomCustomPageController =
-    CustomPageController();
+final SplittedPageController _defaultCustomCustomPageController =
+    SplittedPageController();
 const PageScrollPhysics _kPagePhysics = PageScrollPhysics();
 
 /// A scrollable list that works page by page.
 ///
 /// Each child of a page view is forced to be the same size as the viewport.
 ///
-/// You can use a [CustomPageController] to control which page is visible in the view.
+/// You can use a [SplittedPageController] to control which page is visible in the view.
 /// In addition to being able to control the pixel offset of the content inside
-/// the [CustomPageView], a [CustomPageController] also lets you control the offset in terms
+/// the [SplittedPageView], a [SplittedPageController] also lets you control the offset in terms
 /// of pages, which are increments of the viewport size.
 ///
-/// The [CustomPageController] can also be used to control the
-/// [CustomPageController.initialPage], which determines which page is shown when the
-/// [CustomPageView] is first constructed, and the [CustomPageController.viewportFraction],
+/// The [SplittedPageController] can also be used to control the
+/// [SplittedPageController.initialPage], which determines which page is shown when the
+/// [SplittedPageView] is first constructed, and the [SplittedPageController.viewportFraction],
 /// which determines the size of the pages as a fraction of the viewport size.
 ///
 /// {@youtube 560 315 https://www.youtube.com/watch?v=J1gE9xvph-A}
 ///
 /// {@tool dartpad}
-/// Here is an example of [CustomPageView]. It creates a centered [Text] in each of the three pages
+/// Here is an example of [SplittedPageView]. It creates a centered [Text] in each of the three pages
 /// which scroll horizontally.
 ///
 /// ** See code in examples/api/lib/widgets/page_view/page_view.0.dart **
@@ -697,13 +702,13 @@ const PageScrollPhysics _kPagePhysics = PageScrollPhysics();
 ///
 /// See also:
 ///
-///  * [CustomPageController], which controls which page is visible in the view.
+///  * [SplittedPageController], which controls which page is visible in the view.
 ///  * [SingleChildScrollView], when you need to make a single child scrollable.
 ///  * [ListView], for a scrollable list of boxes.
 ///  * [GridView], for a scrollable grid of boxes.
 ///  * [ScrollNotification] and [NotificationListener], which can be used to watch
 ///    the scroll position without using a [ScrollController].
-class CustomPageView extends StatefulWidget {
+class SplittedPageView extends StatefulWidget {
   /// Creates a scrollable list that works page by page from an explicit [List]
   /// of widgets.
   ///
@@ -718,15 +723,15 @@ class CustomPageView extends StatefulWidget {
   ///
   /// {@template flutter.widgets.CustomPageView.allowImplicitScrolling}
   /// The [allowImplicitScrolling] parameter must not be null. If true, the
-  /// [CustomPageView] will participate in accessibility scrolling more like a
+  /// [SplittedPageView] will participate in accessibility scrolling more like a
   /// [ListView], where implicit scroll actions will move to the next page
-  /// rather than into the contents of the [CustomPageView].
+  /// rather than into the contents of the [SplittedPageView].
   /// {@endtemplate}
-  CustomPageView({
+  SplittedPageView({
     super.key,
     this.scrollDirection = Axis.horizontal,
     this.reverse = false,
-    CustomPageController? controller,
+    SplittedPageController? controller,
     this.physics,
     this.pageSnapping = true,
     this.onPageChanged,
@@ -747,7 +752,7 @@ class CustomPageView extends StatefulWidget {
   /// number of children because the builder is called only for those children
   /// that are actually visible.
   ///
-  /// Providing a non-null [itemCount] lets the [CustomPageView] compute the maximum
+  /// Providing a non-null [itemCount] lets the [SplittedPageView] compute the maximum
   /// scroll extent.
   ///
   /// [itemBuilder] will be called only with indices greater than or equal to
@@ -763,11 +768,11 @@ class CustomPageView extends StatefulWidget {
   /// {@endtemplate}
   ///
   /// {@macro flutter.widgets.CustomPageView.allowImplicitScrolling}
-  CustomPageView.builder({
+  SplittedPageView.builder({
     super.key,
     this.scrollDirection = Axis.horizontal,
     this.reverse = false,
-    CustomPageController? controller,
+    SplittedPageController? controller,
     this.physics,
     this.pageSnapping = true,
     this.onPageChanged,
@@ -792,7 +797,7 @@ class CustomPageView extends StatefulWidget {
   ///
   /// {@tool snippet}
   ///
-  /// This [CustomPageView] uses a custom [SliverChildBuilderDelegate] to support child
+  /// This [SplittedPageView] uses a custom [SliverChildBuilderDelegate] to support child
   /// reordering.
   ///
   /// ```dart
@@ -871,11 +876,11 @@ class CustomPageView extends StatefulWidget {
   /// {@end-tool}
   ///
   /// {@macro flutter.widgets.CustomPageView.allowImplicitScrolling}
-  CustomPageView.custom({
+  SplittedPageView.custom({
     super.key,
     this.scrollDirection = Axis.horizontal,
     this.reverse = false,
-    CustomPageController? controller,
+    SplittedPageController? controller,
     this.physics,
     this.pageSnapping = true,
     this.onPageChanged,
@@ -925,7 +930,7 @@ class CustomPageView extends StatefulWidget {
 
   /// An object that can be used to control the position to which this page
   /// view is scrolled.
-  final CustomPageController controller;
+  final SplittedPageController controller;
 
   /// How the page view should respond to user input.
   ///
@@ -944,7 +949,7 @@ class CustomPageView extends StatefulWidget {
 
   /// Set to false to disable page snapping, useful for custom scroll behavior.
   ///
-  /// If the [padEnds] is false and [CustomPageController.viewportFraction] < 1.0,
+  /// If the [padEnds] is false and [SplittedPageController.viewportFraction] < 1.0,
   /// the page will snap to the beginning of the viewport; otherwise, the page
   /// will snap to the center of the viewport.
   final bool pageSnapping;
@@ -952,10 +957,10 @@ class CustomPageView extends StatefulWidget {
   /// Called whenever the page in the center of the viewport changes.
   final ValueChanged<int>? onPageChanged;
 
-  /// A delegate that provides the children for the [CustomPageView].
+  /// A delegate that provides the children for the [SplittedPageView].
   ///
   /// The [CustomPageView.custom] constructor lets you specify this delegate
-  /// explicitly. The [CustomPageView] and [CustomPageView.builder] constructors create a
+  /// explicitly. The [SplittedPageView] and [CustomPageView.builder] constructors create a
   /// [childrenDelegate] that wraps the given [List] and [IndexedWidgetBuilder],
   /// respectively.
   final SliverChildDelegate childrenDelegate;
@@ -981,20 +986,20 @@ class CustomPageView extends StatefulWidget {
 
   /// Whether to add padding to both ends of the list.
   ///
-  /// If this is set to true and [CustomPageController.viewportFraction] < 1.0, padding will be added
+  /// If this is set to true and [SplittedPageController.viewportFraction] < 1.0, padding will be added
   /// such that the first and last child slivers will be in the center of
   /// the viewport when scrolled all the way to the start or end, respectively.
   ///
-  /// If [CustomPageController.viewportFraction] >= 1.0, this property has no effect.
+  /// If [SplittedPageController.viewportFraction] >= 1.0, this property has no effect.
   ///
   /// This property defaults to true and must not be null.
   final bool padEnds;
 
   @override
-  State<CustomPageView> createState() => _CustomPageViewState();
+  State<SplittedPageView> createState() => _SplittedPageViewState();
 }
 
-class _CustomPageViewState extends State<CustomPageView> {
+class _SplittedPageViewState extends State<SplittedPageView> {
   int _lastReportedPage = 0;
 
   @override
@@ -1062,11 +1067,17 @@ class _CustomPageViewState extends State<CustomPageView> {
             offset: position,
             clipBehavior: widget.clipBehavior,
             slivers: <Widget>[
-              SliverList(
-                // viewportFraction: widget.controller.viewportFraction,
-                delegate: widget.childrenDelegate,
-                // padEnds: widget.padEnds,
-              ),
+              widget.controller.viewportSizes == null
+                  ? SliverFillViewport(
+                      viewportFraction: widget.controller.viewportFraction,
+                      delegate: widget.childrenDelegate,
+                      padEnds: widget.padEnds,
+                    )
+                  : SliverList(
+                      // viewportFraction: widget.controller.viewportFraction,
+                      delegate: widget.childrenDelegate,
+                      // padEnds: widget.padEnds,
+                    ),
             ],
           );
         },
@@ -1081,7 +1092,7 @@ class _CustomPageViewState extends State<CustomPageView> {
         .add(EnumProperty<Axis>('scrollDirection', widget.scrollDirection));
     description.add(
         FlagProperty('reverse', value: widget.reverse, ifTrue: 'reversed'));
-    description.add(DiagnosticsProperty<CustomPageController>(
+    description.add(DiagnosticsProperty<SplittedPageController>(
         'controller', widget.controller,
         showName: false));
     description.add(DiagnosticsProperty<ScrollPhysics>(

@@ -39,11 +39,11 @@ import 'package:flutter/widgets.dart';
 /// }
 ///
 /// class _MyCustomPageViewState extends State<MyCustomPageView> {
-///   final CustomPageController _CustomPageController = CustomPageController();
+///   final CustomCustomPageController _CustomCustomPageController = CustomCustomPageController();
 ///
 ///   @override
 ///   void dispose() {
-///     _CustomPageController.dispose();
+///     _CustomCustomPageController.dispose();
 ///     super.dispose();
 ///   }
 ///
@@ -52,15 +52,15 @@ import 'package:flutter/widgets.dart';
 ///     return MaterialApp(
 ///       home: Scaffold(
 ///         body: CustomPageView(
-///           controller: _CustomPageController,
+///           controller: _CustomCustomPageController,
 ///           children: <Widget>[
 ///             Container(
 ///               color: Colors.red,
 ///               child: Center(
 ///                 child: ElevatedButton(
 ///                   onPressed: () {
-///                     if (_CustomPageController.hasClients) {
-///                       _CustomPageController.animateToPage(
+///                     if (_CustomCustomPageController.hasClients) {
+///                       _CustomCustomPageController.animateToPage(
 ///                         1,
 ///                         duration: const Duration(milliseconds: 400),
 ///                         curve: Curves.easeInOut,
@@ -76,8 +76,8 @@ import 'package:flutter/widgets.dart';
 ///               child: Center(
 ///                 child: ElevatedButton(
 ///                   onPressed: () {
-///                     if (_CustomPageController.hasClients) {
-///                       _CustomPageController.animateToPage(
+///                     if (_CustomCustomPageController.hasClients) {
+///                       _CustomCustomPageController.animateToPage(
 ///                         0,
 ///                         duration: const Duration(milliseconds: 400),
 ///                         curve: Curves.easeInOut,
@@ -104,11 +104,11 @@ class CustomPageController extends ScrollController {
       {this.initialPage = 0,
       this.keepPage = true,
       this.viewportFraction = 1.0,
-      this.viewportFractions})
+      this.viewportSizes})
       : assert(viewportFraction > 0.0);
 
   /// List of width for each page.
-  final List<double>? viewportFractions;
+  final List<double>? viewportSizes;
 
   /// The page to show when first creating the [CustomPageView].
   final int initialPage;
@@ -158,12 +158,12 @@ class CustomPageController extends ScrollController {
   double? get page {
     assert(
       positions.isNotEmpty,
-      'CustomPageController.page cannot be accessed before a CustomPageView is built with it.',
+      'CustomCustomPageController.page cannot be accessed before a CustomPageView is built with it.',
     );
     assert(
       positions.length == 1,
       'The page property cannot be read when multiple CustomPageViews are attached to '
-      'the same CustomPageController.',
+      'the same CustomCustomPageController.',
     );
     final _PagePosition position = this.position as _PagePosition;
     return position.page;
@@ -236,7 +236,7 @@ class CustomPageController extends ScrollController {
       initialPage: initialPage,
       keepPage: keepPage,
       viewportFraction: viewportFraction,
-      viewportFractions: viewportFractions ?? [],
+      viewportSizes: viewportSizes ?? [],
       oldPosition: oldPosition,
     );
   }
@@ -262,7 +262,7 @@ class PageMetrics extends FixedScrollMetrics {
     required super.viewportDimension,
     required super.axisDirection,
     required this.viewportFraction,
-    required this.viewportFractions,
+    required this.viewportSizes,
   });
 
   @override
@@ -273,7 +273,7 @@ class PageMetrics extends FixedScrollMetrics {
     double? viewportDimension,
     AxisDirection? axisDirection,
     double? viewportFraction,
-    List<double>? viewportFractions,
+    List<double>? viewportSizes,
   }) {
     return PageMetrics(
       minScrollExtent: minScrollExtent ??
@@ -285,11 +285,11 @@ class PageMetrics extends FixedScrollMetrics {
           (hasViewportDimension ? this.viewportDimension : null),
       axisDirection: axisDirection ?? this.axisDirection,
       viewportFraction: viewportFraction ?? this.viewportFraction,
-      viewportFractions: this.viewportFractions,
+      viewportSizes: this.viewportSizes,
     );
   }
 
-  final List<double> viewportFractions;
+  final List<double> viewportSizes;
 
   int fractionIndex = 0;
 
@@ -298,16 +298,16 @@ class PageMetrics extends FixedScrollMetrics {
     assert(viewportDimension > 0.0);
 
     double sum = 0;
-    for (var i = 0; i < viewportFractions.length; i++) {
+    for (var i = 0; i < viewportSizes.length; i++) {
       fractionIndex = i;
-      if (pixels < sum + viewportFractions[i]) {
+      if (pixels < sum + viewportSizes[i]) {
         break;
       }
-      sum += viewportFractions[i];
+      sum += viewportSizes[i];
     }
 
     final double actual =
-        fractionIndex + (pixels - sum) / viewportFractions[fractionIndex];
+        fractionIndex + (pixels - sum) / viewportSizes[fractionIndex];
     final double round = actual.roundToDouble();
     if ((actual - round).abs() < precisionErrorTolerance) {
       // print(round);
@@ -331,7 +331,7 @@ class _PagePosition extends ScrollPositionWithSingleContext
     this.initialPage = 0,
     bool keepPage = true,
     double viewportFraction = 1.0,
-    required this.viewportFractions,
+    required this.viewportSizes,
     super.oldPosition,
   })  : assert(viewportFraction > 0.0),
         _viewportFraction = viewportFraction,
@@ -349,7 +349,7 @@ class _PagePosition extends ScrollPositionWithSingleContext
   double? _cachedPage;
 
   @override
-  List<double> viewportFractions;
+  List<double> viewportSizes;
 
   @override
   Future<void> ensureVisible(
@@ -399,13 +399,13 @@ class _PagePosition extends ScrollPositionWithSingleContext
 
   int getFractionIndex(double pixel) {
     double sum = 0;
-    for (var i = 0; i < viewportFractions.length; i++) {
-      if (pixel < sum + viewportFractions[i]) {
+    for (var i = 0; i < viewportSizes.length; i++) {
+      if (pixel < sum + viewportSizes[i]) {
         return i;
       }
-      sum += viewportFractions[i];
+      sum += viewportSizes[i];
     }
-    return viewportFractions.length - 1;
+    return viewportSizes.length - 1;
   }
 
   @override
@@ -416,16 +416,16 @@ class _PagePosition extends ScrollPositionWithSingleContext
     final pixel = math.max(0.0, pixels - _initialPageOffset);
 
     double sum = 0;
-    for (var i = 0; i < viewportFractions.length; i++) {
+    for (var i = 0; i < viewportSizes.length; i++) {
       fractionIndex = i;
-      if (pixel < sum + viewportFractions[i]) {
+      if (pixel < sum + viewportSizes[i]) {
         break;
       }
-      sum += viewportFractions[i];
+      sum += viewportSizes[i];
     }
 
     final double actual =
-        fractionIndex + (pixel - sum) / viewportFractions[fractionIndex];
+        fractionIndex + (pixel - sum) / viewportSizes[fractionIndex];
     final double round = actual.roundToDouble();
     if ((actual - round).abs() < precisionErrorTolerance) {
       // print(round);
@@ -438,7 +438,7 @@ class _PagePosition extends ScrollPositionWithSingleContext
   double getPixelsFromPage(double page) {
     double sum = 0;
     for (var i = 0; i < page; i++) {
-      sum += viewportFractions[i];
+      sum += viewportSizes[i];
     }
     return sum + _initialPageOffset;
   }
@@ -550,7 +550,7 @@ class _PagePosition extends ScrollPositionWithSingleContext
     double? viewportDimension,
     AxisDirection? axisDirection,
     double? viewportFraction,
-    List<double>? viewportFractions,
+    List<double>? viewportSizes,
   }) {
     return PageMetrics(
       minScrollExtent: minScrollExtent ??
@@ -562,7 +562,7 @@ class _PagePosition extends ScrollPositionWithSingleContext
           (hasViewportDimension ? this.viewportDimension : null),
       axisDirection: axisDirection ?? this.axisDirection,
       viewportFraction: viewportFraction ?? this.viewportFraction,
-      viewportFractions: this.viewportFractions,
+      viewportSizes: this.viewportSizes,
     );
   }
 }
@@ -668,7 +668,7 @@ class PageScrollPhysics extends ScrollPhysics {
 // to plumb in the factory for _PagePosition, but it will end up accumulating
 // a large list of scroll positions. As long as you don't try to actually
 // control the scroll positions, everything should be fine.
-final CustomPageController _defaultCustomPageController =
+final CustomPageController _defaultCustomCustomPageController =
     CustomPageController();
 const PageScrollPhysics _kPagePhysics = PageScrollPhysics();
 
@@ -737,7 +737,7 @@ class CustomPageView extends StatefulWidget {
     this.clipBehavior = Clip.hardEdge,
     this.scrollBehavior,
     this.padEnds = true,
-  })  : controller = controller ?? _defaultCustomPageController,
+  })  : controller = controller ?? _defaultCustomCustomPageController,
         childrenDelegate = SliverChildListDelegate(children);
 
   /// Creates a scrollable list that works page by page using widgets that are
@@ -780,7 +780,7 @@ class CustomPageView extends StatefulWidget {
     this.clipBehavior = Clip.hardEdge,
     this.scrollBehavior,
     this.padEnds = true,
-  })  : controller = controller ?? _defaultCustomPageController,
+  })  : controller = controller ?? _defaultCustomCustomPageController,
         childrenDelegate = SliverChildBuilderDelegate(
           itemBuilder,
           findChildIndexCallback: findChildIndexCallback,
@@ -886,7 +886,7 @@ class CustomPageView extends StatefulWidget {
     this.clipBehavior = Clip.hardEdge,
     this.scrollBehavior,
     this.padEnds = true,
-  }) : controller = controller ?? _defaultCustomPageController;
+  }) : controller = controller ?? _defaultCustomCustomPageController;
 
   /// Controls whether the widget's pages will respond to
   /// [RenderObject.showOnScreen], which will allow for implicit accessibility

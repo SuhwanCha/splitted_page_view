@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:custom_carousel/custom_carousel.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart' show DragStartBehavior;
 import 'package:flutter/material.dart'
     hide PageView, PageController, PageMetrics;
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:splitted_page_view/splitted_page_view.dart';
 
 import 'rendering_tester.dart' show TestClipPaintingContext;
 import 'semantics_tester.dart';
@@ -16,7 +16,7 @@ import 'states.dart';
 
 void main() {
   // Regression test for https://github.com/flutter/flutter/issues/100451
-  testWidgets('CustomPageView.builder respects findChildIndexCallback',
+  testWidgets('SplittedPageView.builder respects findChildIndexCallback',
       (WidgetTester tester) async {
     bool finderCalled = false;
     int itemCount = 7;
@@ -27,7 +27,7 @@ void main() {
       child: StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
           stateSetter = setState;
-          return CustomPageView.builder(
+          return SplittedPageView.builder(
             itemCount: itemCount,
             itemBuilder: (BuildContext _, int index) => Container(
               key: Key('$index'),
@@ -51,10 +51,10 @@ void main() {
   });
 
   testWidgets(
-      'CustomPageView resize from zero-size viewport should not lose state',
+      'SplittedPageView resize from zero-size viewport should not lose state',
       (WidgetTester tester) async {
     // Regression test for https://github.com/flutter/flutter/issues/88956
-    final CustomPageController controller = CustomPageController(
+    final SplittedPageController controller = SplittedPageController(
       initialPage: 1,
     );
 
@@ -64,7 +64,7 @@ void main() {
         child: Center(
           child: SizedBox.fromSize(
             size: size,
-            child: CustomPageView(
+            child: SplittedPageView(
               controller: controller,
               onPageChanged: (int page) {},
               children:
@@ -101,7 +101,7 @@ void main() {
   testWidgets('Change the page through the controller when zero-size viewport',
       (WidgetTester tester) async {
     // Regression test for https://github.com/flutter/flutter/issues/88956
-    final CustomPageController controller = CustomPageController(
+    final SplittedPageController controller = SplittedPageController(
       initialPage: 1,
     );
 
@@ -111,7 +111,7 @@ void main() {
         child: Center(
           child: SizedBox.fromSize(
             size: size,
-            child: CustomPageView(
+            child: SplittedPageView(
               controller: controller,
               onPageChanged: (int page) {},
               children:
@@ -144,7 +144,7 @@ void main() {
   testWidgets('_PagePosition.applyViewportDimension should not throw',
       (WidgetTester tester) async {
     // Regression test for https://github.com/flutter/flutter/issues/101007
-    final CustomPageController controller = CustomPageController(
+    final SplittedPageController controller = SplittedPageController(
       initialPage: 1,
     );
 
@@ -160,7 +160,7 @@ void main() {
           textDirection: TextDirection.ltr,
           child: Center(
             child: SizedBox.expand(
-              child: CustomPageView(
+              child: SplittedPageView(
                 controller: controller,
                 onPageChanged: (int page) {},
                 children:
@@ -183,18 +183,18 @@ void main() {
     await tester.binding.setSurfaceSize(null);
   });
 
-  testWidgets('CustomPageController cannot return page while unattached',
+  testWidgets('SplittedPageController cannot return page while unattached',
       (WidgetTester tester) async {
-    final CustomPageController controller = CustomPageController();
+    final SplittedPageController controller = SplittedPageController();
     expect(() => controller.page, throwsAssertionError);
   });
 
-  testWidgets('CustomPageView control test', (WidgetTester tester) async {
+  testWidgets('SplittedPageView control test', (WidgetTester tester) async {
     final List<String> log = <String>[];
 
     await tester.pumpWidget(Directionality(
       textDirection: TextDirection.ltr,
-      child: CustomPageView(
+      child: SplittedPageView(
         dragStartBehavior: DragStartBehavior.down,
         children: kStates.map<Widget>((String state) {
           return GestureDetector(
@@ -218,7 +218,7 @@ void main() {
 
     expect(find.text('Alaska'), findsNothing);
 
-    await tester.drag(find.byType(CustomPageView), const Offset(-20.0, 0.0));
+    await tester.drag(find.byType(SplittedPageView), const Offset(-20.0, 0.0));
     await tester.pump();
 
     expect(find.text('Alabama'), findsOneWidget);
@@ -230,7 +230,7 @@ void main() {
     expect(find.text('Alabama'), findsOneWidget);
     expect(find.text('Alaska'), findsNothing);
 
-    await tester.drag(find.byType(CustomPageView), const Offset(-401.0, 0.0));
+    await tester.drag(find.byType(SplittedPageView), const Offset(-401.0, 0.0));
     await tester.pumpAndSettle();
 
     expect(find.text('Alabama'), findsNothing);
@@ -242,7 +242,7 @@ void main() {
     log.clear();
 
     await tester.fling(
-        find.byType(CustomPageView), const Offset(-200.0, 0.0), 1000.0);
+        find.byType(SplittedPageView), const Offset(-200.0, 0.0), 1000.0);
     await tester.pumpAndSettle();
 
     expect(find.text('Alabama'), findsNothing);
@@ -250,7 +250,7 @@ void main() {
     expect(find.text('Arizona'), findsOneWidget);
 
     await tester.fling(
-        find.byType(CustomPageView), const Offset(200.0, 0.0), 1000.0);
+        find.byType(SplittedPageView), const Offset(200.0, 0.0), 1000.0);
     await tester.pumpAndSettle();
 
     expect(find.text('Alabama'), findsNothing);
@@ -258,10 +258,10 @@ void main() {
     expect(find.text('Arizona'), findsNothing);
   });
 
-  testWidgets('CustomPageView does not squish when overscrolled',
+  testWidgets('SplittedPageView does not squish when overscrolled',
       (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
-      home: CustomPageView(
+      home: SplittedPageView(
         children: List<Widget>.generate(10, (int i) {
           return Container(
             key: ValueKey<int>(i),
@@ -278,7 +278,7 @@ void main() {
     expect(sizeOf(0), equals(const Size(800.0, 600.0)));
 
     // Going into overscroll.
-    await tester.drag(find.byType(CustomPageView), const Offset(100.0, 0.0));
+    await tester.drag(find.byType(SplittedPageView), const Offset(100.0, 0.0));
     await tester.pump();
 
     expect(leftOf(0), greaterThan(0.0));
@@ -286,9 +286,11 @@ void main() {
 
     // Easing overscroll past overscroll limit.
     if (debugDefaultTargetPlatformOverride == TargetPlatform.macOS) {
-      await tester.drag(find.byType(CustomPageView), const Offset(-500.0, 0.0));
+      await tester.drag(
+          find.byType(SplittedPageView), const Offset(-500.0, 0.0));
     } else {
-      await tester.drag(find.byType(CustomPageView), const Offset(-200.0, 0.0));
+      await tester.drag(
+          find.byType(SplittedPageView), const Offset(-200.0, 0.0));
     }
     await tester.pump();
 
@@ -298,9 +300,10 @@ void main() {
       variant: const TargetPlatformVariant(
           <TargetPlatform>{TargetPlatform.iOS, TargetPlatform.macOS}));
 
-  testWidgets('CustomPageController control test', (WidgetTester tester) async {
-    final CustomPageController controller =
-        CustomPageController(initialPage: 4);
+  testWidgets('SplittedPageController control test',
+      (WidgetTester tester) async {
+    final SplittedPageController controller =
+        SplittedPageController(initialPage: 4);
 
     await tester.pumpWidget(Directionality(
       textDirection: TextDirection.ltr,
@@ -308,7 +311,7 @@ void main() {
         child: SizedBox(
           width: 600.0,
           height: 400.0,
-          child: CustomPageView(
+          child: SplittedPageView(
             controller: controller,
             children:
                 kStates.map<Widget>((String state) => Text(state)).toList(),
@@ -331,7 +334,7 @@ void main() {
         child: SizedBox(
           width: 300.0,
           height: 400.0,
-          child: CustomPageView(
+          child: SplittedPageView(
             controller: controller,
             children:
                 kStates.map<Widget>((String state) => Text(state)).toList(),
@@ -349,7 +352,7 @@ void main() {
     expect(find.text('California'), findsOneWidget);
   });
 
-  testWidgets('CustomPageController page stability',
+  testWidgets('SplittedPageController page stability',
       (WidgetTester tester) async {
     await tester.pumpWidget(Directionality(
       textDirection: TextDirection.ltr,
@@ -357,7 +360,7 @@ void main() {
         child: SizedBox(
           width: 600.0,
           height: 400.0,
-          child: CustomPageView(
+          child: SplittedPageView(
             children:
                 kStates.map<Widget>((String state) => Text(state)).toList(),
           ),
@@ -367,7 +370,8 @@ void main() {
 
     expect(find.text('Alabama'), findsOneWidget);
 
-    await tester.drag(find.byType(CustomPageView), const Offset(-1250.0, 0.0));
+    await tester.drag(
+        find.byType(SplittedPageView), const Offset(-1250.0, 0.0));
     await tester.pumpAndSettle();
 
     expect(find.text('Arizona'), findsOneWidget);
@@ -378,7 +382,7 @@ void main() {
         child: SizedBox(
           width: 250.0,
           height: 100.0,
-          child: CustomPageView(
+          child: SplittedPageView(
             children:
                 kStates.map<Widget>((String state) => Text(state)).toList(),
           ),
@@ -394,7 +398,7 @@ void main() {
         child: SizedBox(
           width: 450.0,
           height: 400.0,
-          child: CustomPageView(
+          child: SplittedPageView(
             children:
                 kStates.map<Widget>((String state) => Text(state)).toList(),
           ),
@@ -406,12 +410,12 @@ void main() {
   });
 
   testWidgets(
-      'CustomPageController nextPage and previousPage return Futures that resolve',
+      'SplittedPageController nextPage and previousPage return Futures that resolve',
       (WidgetTester tester) async {
-    final CustomPageController controller = CustomPageController();
+    final SplittedPageController controller = SplittedPageController();
     await tester.pumpWidget(Directionality(
       textDirection: TextDirection.ltr,
-      child: CustomPageView(
+      child: SplittedPageView(
         controller: controller,
         children: kStates.map<Widget>((String state) => Text(state)).toList(),
       ),
@@ -442,7 +446,7 @@ void main() {
     expect(previousPageCompleted, true);
   });
 
-  testWidgets('CustomPageView in zero-size container',
+  testWidgets('SplittedPageView in zero-size container',
       (WidgetTester tester) async {
     await tester.pumpWidget(Directionality(
       textDirection: TextDirection.ltr,
@@ -450,7 +454,7 @@ void main() {
         child: SizedBox(
           width: 0.0,
           height: 0.0,
-          child: CustomPageView(
+          child: SplittedPageView(
             children:
                 kStates.map<Widget>((String state) => Text(state)).toList(),
           ),
@@ -466,7 +470,7 @@ void main() {
         child: SizedBox(
           width: 200.0,
           height: 200.0,
-          child: CustomPageView(
+          child: SplittedPageView(
             children:
                 kStates.map<Widget>((String state) => Text(state)).toList(),
           ),
@@ -481,7 +485,7 @@ void main() {
     final List<int> log = <int>[];
     await tester.pumpWidget(Directionality(
       textDirection: TextDirection.ltr,
-      child: CustomPageView(
+      child: SplittedPageView(
         onPageChanged: log.add,
         children: kStates.map<Widget>((String state) => Text(state)).toList(),
       ),
@@ -530,13 +534,13 @@ void main() {
   testWidgets('Bouncing scroll physics ballistics does not overshoot',
       (WidgetTester tester) async {
     final List<int> log = <int>[];
-    final CustomPageController controller =
-        CustomPageController(viewportFraction: 0.9);
+    final SplittedPageController controller =
+        SplittedPageController(viewportFraction: 0.9);
 
-    Widget build(CustomPageController controller, {Size? size}) {
+    Widget build(SplittedPageController controller, {Size? size}) {
       final Widget pageView = Directionality(
         textDirection: TextDirection.ltr,
-        child: CustomPageView(
+        child: SplittedPageView(
           controller: controller,
           onPageChanged: log.add,
           physics: const BouncingScrollPhysics(),
@@ -561,9 +565,9 @@ void main() {
     expect(log, isEmpty);
 
     // Fling right to move to a non-existent page at the beginning of the
-    // CustomPageView, and confirm that the CustomPageView settles back on the first page.
+    // SplittedPageView, and confirm that the SplittedPageView settles back on the first page.
     await tester.fling(
-        find.byType(CustomPageView), const Offset(100.0, 0.0), 800.0);
+        find.byType(SplittedPageView), const Offset(100.0, 0.0), 800.0);
     await tester.pumpAndSettle();
     expect(log, isEmpty);
 
@@ -576,7 +580,7 @@ void main() {
     expect(log, isEmpty);
 
     await tester.fling(
-        find.byType(CustomPageView), const Offset(100.0, 0.0), 800.0);
+        find.byType(SplittedPageView), const Offset(100.0, 0.0), 800.0);
     await tester.pumpAndSettle();
     expect(log, isEmpty);
 
@@ -585,14 +589,14 @@ void main() {
     expect(find.text('Arizona'), findsNothing);
   });
 
-  testWidgets('CustomPageView viewportFraction', (WidgetTester tester) async {
-    CustomPageController controller =
-        CustomPageController(viewportFraction: 7 / 8);
+  testWidgets('SplittedPageView viewportFraction', (WidgetTester tester) async {
+    SplittedPageController controller =
+        SplittedPageController(viewportFraction: 7 / 8);
 
-    Widget build(CustomPageController controller) {
+    Widget build(SplittedPageController controller) {
       return Directionality(
         textDirection: TextDirection.ltr,
-        child: CustomPageView.builder(
+        child: SplittedPageView.builder(
           controller: controller,
           itemCount: kStates.length,
           itemBuilder: (BuildContext context, int index) {
@@ -620,7 +624,7 @@ void main() {
     expect(tester.getTopLeft(find.text('Hawaii')), const Offset(50.0, 0.0));
     expect(tester.getTopLeft(find.text('Idaho')), const Offset(750.0, 0.0));
 
-    controller = CustomPageController(viewportFraction: 39 / 40);
+    controller = SplittedPageController(viewportFraction: 39 / 40);
 
     await tester.pumpWidget(build(controller));
 
@@ -636,7 +640,7 @@ void main() {
     Widget build({required bool pageSnapping}) {
       return Directionality(
         textDirection: TextDirection.ltr,
-        child: CustomPageView(
+        child: SplittedPageView(
           pageSnapping: pageSnapping,
           onPageChanged: log.add,
           children: kStates.map<Widget>((String state) => Text(state)).toList(),
@@ -692,15 +696,15 @@ void main() {
     expect(find.text('Arkansas'), findsNothing);
   });
 
-  testWidgets('CustomPageView small viewportFraction',
+  testWidgets('SplittedPageView small viewportFraction',
       (WidgetTester tester) async {
-    final CustomPageController controller =
-        CustomPageController(viewportFraction: 1 / 8);
+    final SplittedPageController controller =
+        SplittedPageController(viewportFraction: 1 / 8);
 
-    Widget build(CustomPageController controller) {
+    Widget build(SplittedPageController controller) {
       return Directionality(
         textDirection: TextDirection.ltr,
-        child: CustomPageView.builder(
+        child: SplittedPageView.builder(
           controller: controller,
           itemCount: kStates.length,
           itemBuilder: (BuildContext context, int index) {
@@ -740,15 +744,15 @@ void main() {
     expect(tester.getTopLeft(find.text('Iowa')), const Offset(750.0, 0.0));
   });
 
-  testWidgets('CustomPageView large viewportFraction',
+  testWidgets('SplittedPageView large viewportFraction',
       (WidgetTester tester) async {
-    final CustomPageController controller =
-        CustomPageController(viewportFraction: 5 / 4);
+    final SplittedPageController controller =
+        SplittedPageController(viewportFraction: 5 / 4);
 
-    Widget build(CustomPageController controller) {
+    Widget build(SplittedPageController controller) {
       return Directionality(
         textDirection: TextDirection.ltr,
-        child: CustomPageView.builder(
+        child: SplittedPageView.builder(
           controller: controller,
           itemCount: kStates.length,
           itemBuilder: (BuildContext context, int index) {
@@ -777,12 +781,12 @@ void main() {
   });
 
   testWidgets(
-    'Updating CustomPageView large viewportFraction',
+    'Updating SplittedPageView large viewportFraction',
     (WidgetTester tester) async {
-      Widget build(CustomPageController controller) {
+      Widget build(SplittedPageController controller) {
         return Directionality(
           textDirection: TextDirection.ltr,
-          child: CustomPageView.builder(
+          child: SplittedPageView.builder(
             controller: controller,
             itemCount: kStates.length,
             itemBuilder: (BuildContext context, int index) {
@@ -798,16 +802,16 @@ void main() {
         );
       }
 
-      final CustomPageController oldController =
-          CustomPageController(viewportFraction: 5 / 4);
+      final SplittedPageController oldController =
+          SplittedPageController(viewportFraction: 5 / 4);
       await tester.pumpWidget(build(oldController));
 
       expect(tester.getTopLeft(find.text('Alabama')), const Offset(-100, 0));
       expect(tester.getBottomRight(find.text('Alabama')),
           const Offset(900.0, 600.0));
 
-      final CustomPageController newController =
-          CustomPageController(viewportFraction: 4);
+      final SplittedPageController newController =
+          SplittedPageController(viewportFraction: 4);
       await tester.pumpWidget(build(newController));
       newController.jumpToPage(10);
       await tester.pump();
@@ -818,16 +822,16 @@ void main() {
   );
 
   testWidgets(
-    'CustomPageView large viewportFraction can scroll to the last page and snap',
+    'SplittedPageView large viewportFraction can scroll to the last page and snap',
     (WidgetTester tester) async {
       // Regression test for https://github.com/flutter/flutter/issues/45096.
-      final CustomPageController controller =
-          CustomPageController(viewportFraction: 5 / 4);
+      final SplittedPageController controller =
+          SplittedPageController(viewportFraction: 5 / 4);
 
-      Widget build(CustomPageController controller) {
+      Widget build(SplittedPageController controller) {
         return Directionality(
           textDirection: TextDirection.ltr,
-          child: CustomPageView.builder(
+          child: SplittedPageView.builder(
             controller: controller,
             itemCount: 3,
             itemBuilder: (BuildContext context, int index) {
@@ -859,14 +863,14 @@ void main() {
     'All visible pages are able to receive touch events',
     (WidgetTester tester) async {
       // Regression test for https://github.com/flutter/flutter/issues/23873.
-      final CustomPageController controller =
-          CustomPageController(viewportFraction: 1 / 4);
+      final SplittedPageController controller =
+          SplittedPageController(viewportFraction: 1 / 4);
       late int tappedIndex;
 
       Widget build() {
         return Directionality(
           textDirection: TextDirection.ltr,
-          child: CustomPageView.builder(
+          child: SplittedPageView.builder(
             controller: controller,
             itemCount: 20,
             itemBuilder: (BuildContext context, int index) {
@@ -908,7 +912,7 @@ void main() {
   testWidgets('the current item remains centered on constraint change',
       (WidgetTester tester) async {
     // Regression test for https://github.com/flutter/flutter/issues/50505.
-    final CustomPageController controller = CustomPageController(
+    final SplittedPageController controller = SplittedPageController(
       initialPage: kStates.length - 1,
       viewportFraction: 0.5,
     );
@@ -919,7 +923,7 @@ void main() {
         child: Center(
           child: SizedBox.fromSize(
             size: size,
-            child: CustomPageView(
+            child: SplittedPageView(
               controller: controller,
               children:
                   kStates.map<Widget>((String state) => Text(state)).toList(),
@@ -949,16 +953,16 @@ void main() {
     verifyCentered();
   });
 
-  testWidgets('CustomPageView does not report page changed on overscroll',
+  testWidgets('SplittedPageView does not report page changed on overscroll',
       (WidgetTester tester) async {
-    final CustomPageController controller = CustomPageController(
+    final SplittedPageController controller = SplittedPageController(
       initialPage: kStates.length - 1,
     );
     int changeIndex = 0;
     Widget build() {
       return Directionality(
         textDirection: TextDirection.ltr,
-        child: CustomPageView(
+        child: SplittedPageView(
           controller: controller,
           children: kStates.map<Widget>((String state) => Text(state)).toList(),
           onPageChanged: (int page) {
@@ -976,15 +980,15 @@ void main() {
     expect(changeIndex, 0);
   });
 
-  testWidgets('CustomPageView can restore page', (WidgetTester tester) async {
-    final CustomPageController controller = CustomPageController();
+  testWidgets('SplittedPageView can restore page', (WidgetTester tester) async {
+    final SplittedPageController controller = SplittedPageController();
     expect(
       () => controller.page,
       throwsA(isAssertionError.having(
         (AssertionError error) => error.message,
         'message',
         equals(
-            'CustomPageController.page cannot be accessed before a CustomPageView is built with it.'),
+            'SplittedPageController.page cannot be accessed before a SplittedPageView is built with it.'),
       )),
     );
     final PageStorageBucket bucket = PageStorageBucket();
@@ -992,8 +996,8 @@ void main() {
       textDirection: TextDirection.ltr,
       child: PageStorage(
         bucket: bucket,
-        child: CustomPageView(
-          key: const PageStorageKey<String>('CustomPageView'),
+        child: SplittedPageView(
+          key: const PageStorageKey<String>('SplittedPageView'),
           controller: controller,
           children: const <Widget>[
             Placeholder(),
@@ -1019,15 +1023,15 @@ void main() {
         (AssertionError error) => error.message,
         'message',
         equals(
-            'CustomPageController.page cannot be accessed before a CustomPageView is built with it.'),
+            'SplittedPageController.page cannot be accessed before a SplittedPageView is built with it.'),
       )),
     );
     await tester.pumpWidget(Directionality(
       textDirection: TextDirection.ltr,
       child: PageStorage(
         bucket: bucket,
-        child: CustomPageView(
-          key: const PageStorageKey<String>('CustomPageView'),
+        child: SplittedPageView(
+          key: const PageStorageKey<String>('SplittedPageView'),
           controller: controller,
           children: const <Widget>[
             Placeholder(),
@@ -1039,13 +1043,13 @@ void main() {
     ));
     expect(controller.page, 2);
 
-    final CustomPageController controller2 =
-        CustomPageController(keepPage: false);
+    final SplittedPageController controller2 =
+        SplittedPageController(keepPage: false);
     await tester.pumpWidget(Directionality(
       textDirection: TextDirection.ltr,
       child: PageStorage(
         bucket: bucket,
-        child: CustomPageView(
+        child: SplittedPageView(
           key: const PageStorageKey<String>(
               'Check it again against your list and see consistency!'),
           controller: controller2,
@@ -1060,14 +1064,14 @@ void main() {
     expect(controller2.page, 0);
   });
 
-  testWidgets('CustomPageView exposes semantics of children',
+  testWidgets('SplittedPageView exposes semantics of children',
       (WidgetTester tester) async {
     final SemanticsTester semantics = SemanticsTester(tester);
 
-    final CustomPageController controller = CustomPageController();
+    final SplittedPageController controller = SplittedPageController();
     await tester.pumpWidget(Directionality(
       textDirection: TextDirection.ltr,
-      child: CustomPageView(
+      child: SplittedPageView(
         controller: controller,
         children: List<Widget>.generate(3, (int i) {
           return Semantics(
@@ -1119,11 +1123,11 @@ void main() {
 
   testWidgets('Page controller can handle rounding issue',
       (WidgetTester tester) async {
-    final CustomPageController pageController = CustomPageController();
+    final SplittedPageController pageController = SplittedPageController();
 
     await tester.pumpWidget(Directionality(
       textDirection: TextDirection.ltr,
-      child: CustomPageView(
+      child: SplittedPageView(
         controller: pageController,
         children: List<Widget>.generate(3, (int i) {
           return Semantics(
@@ -1138,14 +1142,14 @@ void main() {
     expect(pageController.page, 1);
   });
 
-  testWidgets('CustomPageView can participate in a11y scrolling',
+  testWidgets('SplittedPageView can participate in a11y scrolling',
       (WidgetTester tester) async {
     final SemanticsTester semantics = SemanticsTester(tester);
 
-    final CustomPageController controller = CustomPageController();
+    final SplittedPageController controller = SplittedPageController();
     await tester.pumpWidget(Directionality(
       textDirection: TextDirection.ltr,
-      child: CustomPageView(
+      child: SplittedPageView(
         controller: controller,
         allowImplicitScrolling: true,
         children: List<Widget>.generate(4, (int i) {
@@ -1213,12 +1217,12 @@ void main() {
     semantics.dispose();
   });
 
-  testWidgets('CustomPageView respects clipBehavior',
+  testWidgets('SplittedPageView respects clipBehavior',
       (WidgetTester tester) async {
     await tester.pumpWidget(
       Directionality(
         textDirection: TextDirection.ltr,
-        child: CustomPageView(
+        child: SplittedPageView(
           children: <Widget>[Container(height: 2000.0)],
         ),
       ),
@@ -1238,7 +1242,7 @@ void main() {
     await tester.pumpWidget(
       Directionality(
         textDirection: TextDirection.ltr,
-        child: CustomPageView(
+        child: SplittedPageView(
           clipBehavior: Clip.antiAlias,
           children: <Widget>[Container(height: 2000.0)],
         ),
@@ -1251,22 +1255,22 @@ void main() {
     expect(context.clipBehavior, equals(Clip.antiAlias));
   });
 
-  testWidgets('CustomPageView.padEnds tests', (WidgetTester tester) async {
+  testWidgets('SplittedPageView.padEnds tests', (WidgetTester tester) async {
     Finder viewportFinder() =>
         find.byType(SliverFillViewport, skipOffstage: false);
 
-    // CustomPageView() defaults to true.
+    // SplittedPageView() defaults to true.
     await tester.pumpWidget(Directionality(
       textDirection: TextDirection.ltr,
-      child: CustomPageView(),
+      child: SplittedPageView(),
     ));
 
     expect(tester.widget<SliverFillViewport>(viewportFinder()).padEnds, true);
 
-    // CustomPageView(padEnds: false) is propagated properly.
+    // SplittedPageView(padEnds: false) is propagated properly.
     await tester.pumpWidget(Directionality(
       textDirection: TextDirection.ltr,
-      child: CustomPageView(
+      child: SplittedPageView(
         padEnds: false,
       ),
     ));
@@ -1275,19 +1279,19 @@ void main() {
   });
 
   testWidgets(
-      'CustomPageView - precision error inside RenderSliverFixedExtentBoxAdaptor',
+      'SplittedPageView - precision error inside RenderSliverFixedExtentBoxAdaptor',
       (WidgetTester tester) async {
     // Regression test for https://github.com/flutter/flutter/issues/95101
 
-    final CustomPageController controller =
-        CustomPageController(initialPage: 152);
+    final SplittedPageController controller =
+        SplittedPageController(initialPage: 152);
     await tester.pumpWidget(
       Center(
         child: SizedBox(
           width: 392.72727272727275,
           child: Directionality(
             textDirection: TextDirection.ltr,
-            child: CustomPageView.builder(
+            child: SplittedPageView.builder(
               controller: controller,
               itemCount: 366,
               itemBuilder: (BuildContext context, int index) {

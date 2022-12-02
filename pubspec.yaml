@@ -1,11 +1,11 @@
-name: custom_carousel
-description: A new Flutter package project.
-version: 0.0.1
+name: splitted_page_view
+description: Splitted Page View
+version: 1.0.0
 homepage:
 
 environment:
   sdk: '>=2.18.2 <3.0.0'
-  flutter: ">=1.17.0"
+  flutter: '>=1.17.0'
 
 dependencies:
   flutter:

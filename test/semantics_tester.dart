@@ -777,7 +777,7 @@ class _HasSemantics extends Matcher {
     required this.ignoreTransform,
     required this.ignoreId,
     required this.childOrder,
-  }) : assert(ignoreRect != null);
+  });
 
   final TestSemantics _semantics;
   final bool ignoreRect;

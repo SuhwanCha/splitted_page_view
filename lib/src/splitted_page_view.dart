@@ -252,33 +252,10 @@ class PageMetrics extends FixedScrollMetrics {
     required super.pixels,
     required super.viewportDimension,
     required super.axisDirection,
+    required super.devicePixelRatio,
     required this.viewportFraction,
     required this.viewportSizes,
   });
-
-  @override
-  PageMetrics copyWith({
-    double? minScrollExtent,
-    double? maxScrollExtent,
-    double? pixels,
-    double? viewportDimension,
-    AxisDirection? axisDirection,
-    double? viewportFraction,
-    List<double>? viewportSizes,
-  }) {
-    return PageMetrics(
-      minScrollExtent: minScrollExtent ??
-          (hasContentDimensions ? this.minScrollExtent : null),
-      maxScrollExtent: maxScrollExtent ??
-          (hasContentDimensions ? this.maxScrollExtent : null),
-      pixels: pixels ?? (hasPixels ? this.pixels : null),
-      viewportDimension: viewportDimension ??
-          (hasViewportDimension ? this.viewportDimension : null),
-      axisDirection: axisDirection ?? this.axisDirection,
-      viewportFraction: viewportFraction ?? this.viewportFraction,
-      viewportSizes: this.viewportSizes,
-    );
-  }
 
   final List<double>? viewportSizes;
 
@@ -464,14 +441,15 @@ class _PagePosition extends ScrollPositionWithSingleContext
 
   @override
   void saveScrollOffset() {
-    PageStorage.of(context.storageContext)?.writeState(context.storageContext,
+    PageStorage.maybeOf(context.storageContext)?.writeState(
+        context.storageContext,
         _cachedPage ?? getPageFromPixels(pixels, viewportDimension));
   }
 
   @override
   void restoreScrollOffset() {
     if (!hasPixels) {
-      final double? value = PageStorage.of(context.storageContext)
+      final double? value = PageStorage.maybeOf(context.storageContext)
           ?.readState(context.storageContext) as double?;
       if (value != null) {
         _pageToUseOnStartup = value;
@@ -544,30 +522,6 @@ class _PagePosition extends ScrollPositionWithSingleContext
     return super.applyContentDimensions(
       newMinScrollExtent,
       math.max(newMinScrollExtent, maxScrollExtent - _initialPageOffset),
-    );
-  }
-
-  @override
-  PageMetrics copyWith({
-    double? minScrollExtent,
-    double? maxScrollExtent,
-    double? pixels,
-    double? viewportDimension,
-    AxisDirection? axisDirection,
-    double? viewportFraction,
-    List<double>? viewportSizes,
-  }) {
-    return PageMetrics(
-      minScrollExtent: minScrollExtent ??
-          (hasContentDimensions ? this.minScrollExtent : null),
-      maxScrollExtent: maxScrollExtent ??
-          (hasContentDimensions ? this.maxScrollExtent : null),
-      pixels: pixels ?? (hasPixels ? this.pixels : null),
-      viewportDimension: viewportDimension ??
-          (hasViewportDimension ? this.viewportDimension : null),
-      axisDirection: axisDirection ?? this.axisDirection,
-      viewportFraction: viewportFraction ?? this.viewportFraction,
-      viewportSizes: this.viewportSizes,
     );
   }
 }
@@ -656,7 +610,7 @@ class PageScrollPhysics extends ScrollPhysics {
         (velocity >= 0.0 && position.pixels >= position.maxScrollExtent)) {
       return super.createBallisticSimulation(position, velocity);
     }
-    final Tolerance tolerance = this.tolerance;
+    final Tolerance tolerance = toleranceFor(position);
     final double target = _getTargetPixels(position, tolerance, velocity);
     if (target != position.pixels) {
       return ScrollSpringSimulation(spring, position.pixels, target, velocity,

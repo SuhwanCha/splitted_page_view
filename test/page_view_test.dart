@@ -151,7 +151,7 @@ void main() {
     // Set the starting viewportDimension to 0.0
     await tester.binding.setSurfaceSize(Size.zero);
     final MediaQueryData mediaQueryData =
-        MediaQueryData.fromWindow(tester.binding.window);
+        MediaQueryData.fromView(tester.binding.window);
 
     Widget build(Size size) {
       return MediaQuery(
@@ -1102,23 +1102,6 @@ void main() {
     expect(semantics, includesNodeWith(label: 'Page #2'));
 
     semantics.dispose();
-  });
-
-  testWidgets('PageMetrics', (WidgetTester tester) async {
-    final PageMetrics page = PageMetrics(
-      minScrollExtent: 100.0,
-      maxScrollExtent: 200.0,
-      pixels: 150.0,
-      viewportDimension: 25.0,
-      axisDirection: AxisDirection.right,
-      viewportFraction: 1.0,
-      viewportSizes: [],
-    );
-    expect(page.page, 6);
-    final PageMetrics page2 = page.copyWith(
-      pixels: page.pixels - 100.0,
-    );
-    expect(page2.page, 4.0);
   });
 
   testWidgets('Page controller can handle rounding issue',
